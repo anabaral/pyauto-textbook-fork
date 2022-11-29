@@ -2,6 +2,8 @@ from selenium import webdriver
 import os, time, datetime
 from _MyPath import URL, DRIVER as d
 import selenium_login as login #로그인 모듈 추가--- (1)
+from selenium.webdriver.common.by import By
+
 
 #입력 정보 지정--- (2)
 url = URL+'book'
@@ -52,19 +54,19 @@ def add_booklist(driver, booklist):
 
 # 현재 책 권수 확인 --- (7)
 def count_book(driver):
-    div = driver.find_element_by_id('cnt') #--- (7a)
+    div = driver.find_element(By.ID, 'cnt') #--- (7a)
     num = div.text
     print('현재 '+num+'권')
     return int(num) #--- (7b)
 
 # 책 한 권 추가 --- (8)
 def add_book(driver, bookinfo):
-    driver.find_element_by_css_selector('label.mainbtn').click() #--- (8a)
-    driver.find_element_by_name('ntitle').send_keys(bookinfo['title']) #--- (8b)
-    driver.find_element_by_name('nprice').send_keys(bookinfo['price'])
-    driver.find_element_by_name('ndate').send_keys(bookinfo['date'])
-    driver.find_element_by_name('file').send_keys(bookinfo['img'])
-    driver.find_element_by_css_selector('label.subbtn').click() #--- (8c)
+    driver.find_element(By.CSS_SELECTOR, 'label.mainbtn').click() #--- (8a)
+    driver.find_element(By.NAME, 'ntitle').send_keys(bookinfo['title']) #--- (8b)
+    driver.find_element(By.NAME, 'nprice').send_keys(bookinfo['price'])
+    driver.find_element(By.NAME, 'ndate').send_keys(bookinfo['date'])
+    driver.find_element(By.NAME, 'file').send_keys(bookinfo['img'])
+    driver.find_element(By.CSS_SELECTOR, 'label.subbtn').click() #--- (8c)
         
 if __name__ == '__main__':
         mainpro()  

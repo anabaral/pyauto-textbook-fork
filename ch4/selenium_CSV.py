@@ -1,6 +1,8 @@
 from selenium import webdriver
 import os, time, datetime
 from _MyPath import URL, DRIVER as d
+from selenium.webdriver.common.by import By
+import time
 
 # 접속할 URL 지정 --- (1)
 url = URL+'book'
@@ -19,9 +21,10 @@ def csv_download():
     # 기존 파일 삭제 --- (5)
     delete_file()
     # 'CSV 다운로드' 버튼 클릭 --- (6)
-    driver = webdriver.Chrome(d, options=options)
-    driver.get(url)    
-    btn  = driver.find_element_by_partial_link_text('CSV') #--- (6a)
+    driver = webdriver.Chrome(options=options)
+    driver.get(url) 
+    time.sleep(1)
+    btn  = driver.find_element(By.PARTIAL_LINK_TEXT, 'CSV') #--- (6a)
     btn.click() #--- (6b)
     # 파일 다운로드 확인 --- (7)
     if check_file():
