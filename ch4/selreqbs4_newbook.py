@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 from _MyPath import URL, DRIVER as d
 import selenium_upload as upload # --- (1)
 
-url_store = 'https://search.kyobobook.co.kr/search?keyword=%EC%A0%9C%EC%9D%B4%ED%8E%8D&gbCode=TOT&target=total'
+url_store = 'https://search.kyobobook.co.kr/search?keyword=%EC%A0%9C%EC%9D%B4%ED%8E%8D&gbCode=TOT&target=kyobo'
 url_book = URL+'book'
 
 # 책 스크레이핑 후 업로드하기 --- (2)
@@ -22,34 +22,26 @@ def import_book():
 def get_bookinfo():
     html = requests.get(url_store).text
     soup = BeautifulSoup(html, 'html5lib')
-    #slist = soup.select_one('#search_list') #--- (3a)
-    slist = soup.select_one("ul.prod_list").find_all("li", class_="prod_item")
+    slist = soup.select_one('ul.prod_list') #--- (3a)
     infolist =[]
-    # tr 요소 4개만 가져오기 --- (4)
-    #for tr in slist.find_all('tr', limit=4):
-    for prod in slist[0:4]:
+    # li 태그 4개만 가져오기 --- (4)
+    for li in slist.select('li.prod_item', limit=4):
         info ={}
         # 책 제목
-        #title = tr.select_one('.title strong').string.strip()
-        title = prod.select('div.prod_name_group div.auto_overflow_inner a span')[-1].text.strip()
+        title = li.select_one('span:not([class])[id]').string.strip()
         info['title'] = title
+        # 저자
+        #contents = li.select_one('div.prod_author_group>div>div').contents
+        #author = ' '.join(map(lambda t: t.text, list(filter(lambda c: hasattr(c, 'text'), contents))))
         # 출간일 --- (4a)
-        #author = tr.select_one('.author').text.replace("\n","").replace("\t","")
-        #author = prod.select('div.prod_author_info div.auto_overflow_inner a.author.rep ')
-        date = prod.select_one('div.prod_publish span.date').string.strip()
-        #info['date'] = author.split('|')[-1]
-        info['date'] = date
+        info['date'] = li.select_one('span.date').string[:-3]
         # 가격
-        #info['price'] = tr.select_one('.price .org_price del').string
-        price = prod.select_one('div.prod_price span.price span.val').string
-        info['price'] = price
+        info['price'] = li.select_one('span.price_normal>s').string[:-1]
         # 이미지 --- (4b)
         save_file = './output/{}.jpg'.format(re.sub(r'[/\\?%*:|"<>]', '_', title))
         info['img']= os.path.abspath(save_file)
         # 이미지 파일로 저장 --- (4c)
-        #src = tr.img['src']
-        img_elt = prod.select_one("div.prod_area div.prod_thumb_box a span.img_box img")
-        src = f"https://contents.kyobobook.co.kr/pdt/{img_elt['data-kbbfn-bid']}.jpg"
+        src = 'https://contents.kyobobook.co.kr/pdt/' + li.img['data-kbbfn-bid'] + '.jpg'
         res = requests.get(src)
         with open(save_file, 'wb') as fp:
             fp.write(res.content)
